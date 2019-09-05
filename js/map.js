@@ -12,6 +12,12 @@ const pinHeight = 44;
 const minY = 130;
 const maxY = 630;
 const pinsCount = 8;
+const minRooms = 1;
+const maxRooms = 5;
+const minGuests = 1;
+const maxGuests = 5;
+const minPrice = 1000;
+const maxPrice = 1000000;
 
 const titles = [
   'Большая уютная квартира',
@@ -61,32 +67,38 @@ let shuffleArray = (arr) => {
 let takeFromArr = (arr) => {
   let clone = arr.slice();
   return clone.splice(clone.indexOf(clone[getRandomDigit(0, clone.length - 1)]), 1);
-}
+};
+
+let getSubArr = (arr) => shuffleArray(arr.slice()).splice(0, getRandomDigit(0, arr.length - 1));
 
 //создание массива из pinCount элементов, заполнение элемента данными
 let createAdvertsList = () => {
   let pins = [];
 
   for (let i = 0; i < pinsCount; i++) {
+    let pinCoordX = getRandomDigit(0, mapWidth);
+    let pinCoordY = getRandomDigit(minY, maxY);
+
     let pin = {
       author: {
         avatar: `img/avatars/user0${i+1}.png`
       },
       offer: {
         title: takeFromArr(titles),
-        address: `${this.location.x}, ${this.location.y}`,
-        price: getRandomDigit(1000, 1000000),
+        address: `${pinCoordX}, ${pinCoordY}`,
+        price: getRandomDigit(minPrice, maxPrice),
         type: types[getRandomDigit(0, types.length - 1)],
-        rooms: getRandomDigit(1, 5),
-        guests: getRandomDigit(1, 5),
+        rooms: getRandomDigit(minRooms, maxRooms),
+        guests: getRandomDigit(minGuests, maxGuests),
         checkin: times[getRandomDigit(0, times.length - 1)],
         checkout: times[getRandomDigit(0, times.length - 1)],
+        features: getSubArr(featuresList),
         description: "",
         photos: shuffleArray(photos)
       },
       location: {
-        x: getRandomDigit(0, mapWidth),
-        y: getRandomDigit(minY, maxY)
+        x: pinCoordX,
+        y: pinCoordY
       }
     }
 
@@ -112,9 +124,7 @@ let renderPin = (pin) => {
 //создание pinsCount объектов pin, добавление их в разметку
 let createFragment = (pins) => {
   let fragment = document.createDocumentFragment();
-  for (let i = 0; i < pins.length; i++) {
-    fragment.appendChild(renderPin(pins[i]));
-  }
+  pins.forEach(pin => fragment.appendChild(renderPin(pin)));
   similarListElement.appendChild(fragment);
 }
 
