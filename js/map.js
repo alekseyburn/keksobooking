@@ -5,7 +5,11 @@ let mapWidth = map.offsetWidth;
 let pins = document.querySelector(".map__pins");
 let similarListElement = document.querySelector(".map__pins");
 let similarTemplateElement = document.getElementById("pin").content.querySelector(".map__pin");
-
+let adForm = document.querySelector(".ad-form");
+let fieldsetForm = document.querySelectorAll("fieldset");
+let filterForm = document.querySelectorAll(".map__filter")
+let mainPin = map.querySelector(".map__pin--main");
+let addressInput = document.getElementById("address");
 
 const pinWidth = 40;
 const pinHeight = 44;
@@ -54,8 +58,10 @@ const photos = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg',
 ]
 
+//рандомное число
 let getRandomDigit = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
 
+//перемешивание массива
 let shuffleArray = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -64,19 +70,33 @@ let shuffleArray = (arr) => {
   return arr;
 };
 
+//Выбор значения из массива и возврат массива без этого значения
 let takeFromArr = (arr) => {
   let clone = arr.slice();
   return clone.splice(clone.indexOf(clone[getRandomDigit(0, clone.length - 1)]), 1);
 };
 
+//Получение массива с рандомными элементами из другого массива
 let getSubArr = (arr) => shuffleArray(arr.slice()).splice(0, getRandomDigit(0, arr.length - 1));
+
+//получение центральной нижней точки элемента
+let getCoords = (item) => {
+  let itemData = item.getBoundingClientRect();
+  return {
+    x: Math.round(itemData.top + itemData.width / 2),
+    y: Math.round(itemData.left + itemData.height)
+  }
+};
+
+//переключение элементов формы в disabled если они доступны и наоборот
+let toggleElement = (elem) => elem.forEach((item) => item.disabled ? item.disabled = false : item.disabled = true);
 
 //создание массива из pinCount элементов, заполнение элемента данными
 let createAdvertsList = () => {
   let pins = [];
 
   for (let i = 0; i < pinsCount; i++) {
-    let pinCoordX = getRandomDigit(0, mapWidth);
+    let pinCoordX = getRandomDigit(pinWidth / 2, mapWidth - pinWidth / 2);
     let pinCoordY = getRandomDigit(minY, maxY);
 
     let pin = {
@@ -128,6 +148,27 @@ let createFragment = (pins) => {
   similarListElement.appendChild(fragment);
 }
 
-createFragment(createAdvertsList());
+//дизейблим элементы формы при открытии страницы
+toggleElement(fieldsetForm);
+toggleElement(filterForm);
 
-map.classList.remove("map--faded");
+//запись координат главного пина в Адрес Формы
+let mainPinCoords = getCoords(mainPin);
+addressInput.value = `${mainPinCoords.x}, ${mainPinCoords.y}`;
+
+//При нажатии на центральный пин активируем страницу
+let activatePage = () => {
+  map.classList.remove("map--faded");
+  adForm.classList.remove("ad-form--disabled");
+  toggleElement(fieldsetForm);
+  toggleElement(filterForm);
+  createFragment(createAdvertsList());
+  mainPin.removeEventListener("mouseup", activatePage);
+}
+
+mainPin.addEventListener("mouseup", activatePage);
+
+
+
+
+
