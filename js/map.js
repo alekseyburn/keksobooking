@@ -10,6 +10,8 @@ let fieldsetForm = document.querySelectorAll("fieldset");
 let filterForm = document.querySelectorAll(".map__filter")
 let mainPin = map.querySelector(".map__pin--main");
 let addressInput = document.getElementById("address");
+let houseType = document.getElementById("type");
+let nightPrice = document.getElementById("price");
 
 const pinWidth = 40;
 const pinHeight = 44;
@@ -32,13 +34,19 @@ const titles = [
   'Некрасивый негостеприимный домик',
   'Уютное бунгало далеко от моря',
   'Неуютное бунгало по колено в воде',
-]
+];
 const types = [
   'palace',
   'flat',
   'house',
   'bungalo'
-]
+];
+const minPrices = [
+  '10000',
+  '1000',
+  '5000',
+  '0'
+];
 const times = [
   '12:00',
   '13:00',
@@ -157,18 +165,21 @@ let mainPinCoords = getCoords(mainPin);
 addressInput.value = `${mainPinCoords.x}, ${mainPinCoords.y}`;
 
 //При нажатии на центральный пин активируем страницу
-let activatePage = () => {
+let onMainPinClick = () => {
   map.classList.remove("map--faded");
   adForm.classList.remove("ad-form--disabled");
   toggleElement(fieldsetForm);
   toggleElement(filterForm);
   createFragment(createAdvertsList());
-  mainPin.removeEventListener("mouseup", activatePage);
+  mainPin.removeEventListener("mouseup", onMainPinClick);
 }
 
-mainPin.addEventListener("mouseup", activatePage);
+mainPin.addEventListener("mouseup", onMainPinClick);
 
+//При выборе типа жилья ставит минимальную соответствующую цену за ночь
+let onTypeChange = (evt) => {
+  nightPrice.min = minPrices[types.indexOf(evt.currentTarget.value)];
+  nightPrice.placeholder = minPrices[types.indexOf(evt.currentTarget.value)];
+};
 
-
-
-
+houseType.addEventListener("change", onTypeChange);
