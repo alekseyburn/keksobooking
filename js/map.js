@@ -2,7 +2,6 @@
 
 let map = document.querySelector(".map");
 let mapWidth = map.offsetWidth;
-let pins = document.querySelector(".map__pins");
 let similarListElement = document.querySelector(".map__pins");
 let similarTemplateElement = document.getElementById("pin").content.querySelector(".map__pin");
 let adForm = document.querySelector(".ad-form");
@@ -15,8 +14,18 @@ let nightPrice = document.getElementById("price");
 
 const pinWidth = 40;
 const pinHeight = 44;
+const mainPinWidth = 65;
+const mainPinHeight = 65;
 const minY = 130;
 const maxY = 630;
+
+let minMainPinY = minY - mainPinHeight;
+let maxMainPinY = maxY - mainPinHeight;
+let minMainPinX = -mainPinWidth / 2;
+let maxMainPinX = mapWidth - mainPinWidth / 2;
+
+let isActive = false;
+
 const pinsCount = 8;
 const minRooms = 1;
 const maxRooms = 5;
@@ -89,10 +98,9 @@ let getSubArr = (arr) => shuffleArray(arr.slice()).splice(0, getRandomDigit(0, a
 
 //получение центральной нижней точки элемента
 let getCoords = (item) => {
-  let itemData = item.getBoundingClientRect();
   return {
-    x: Math.round(itemData.top + itemData.width / 2),
-    y: Math.round(itemData.left + itemData.height)
+    x: Math.round(item.offsetLeft + item.getBoundingClientRect().width / 2),
+    y: Math.round(item.offsetTop + item.getBoundingClientRect().height)
   }
 };
 
@@ -104,7 +112,7 @@ let createAdvertsList = () => {
   let pins = [];
 
   for (let i = 0; i < pinsCount; i++) {
-    let pinCoordX = getRandomDigit(pinWidth / 2, mapWidth - pinWidth / 2);
+    let pinCoordX = getRandomDigit(-pinWidth / 2, mapWidth - pinWidth / 2);
     let pinCoordY = getRandomDigit(minY, maxY);
 
     let pin = {
@@ -161,8 +169,12 @@ toggleElement(fieldsetForm);
 toggleElement(filterForm);
 
 //запись координат главного пина в Адрес Формы
-let mainPinCoords = getCoords(mainPin);
-addressInput.value = `${mainPinCoords.x}, ${mainPinCoords.y}`;
+let setAddressCoords = () => {
+  let mainPinCoords = getCoords(mainPin);
+  addressInput.value = `${mainPinCoords.x}, ${mainPinCoords.y}`;
+};
+
+setAddressCoords();
 
 //При нажатии на центральный пин активируем страницу
 let onMainPinClick = () => {
@@ -171,10 +183,9 @@ let onMainPinClick = () => {
   toggleElement(fieldsetForm);
   toggleElement(filterForm);
   createFragment(createAdvertsList());
-  mainPin.removeEventListener("mouseup", onMainPinClick);
-}
 
-mainPin.addEventListener("mouseup", onMainPinClick);
+  isActive = true;
+}
 
 //При выборе типа жилья ставит минимальную соответствующую цену за ночь
 let onTypeChange = (evt) => {
@@ -183,3 +194,47 @@ let onTypeChange = (evt) => {
 };
 
 houseType.addEventListener("change", onTypeChange);
+
+//реализация перетаскивания главного пина
+mainPin.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  let startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  //перемещение пина и запись в координаты адрес
+  let onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+    setAddressCoords();
+
+    let shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    //ограничение по краям(верх и низ - высота пина, лево и право - половина ширины пина)
+    mainPin.style.top = `${Math.min(Math.max(minMainPinY, mainPin.offsetTop - shift.y), maxMainPinY)}px`;
+    mainPin.style.left = `${Math.min(Math.max(minMainPinX, mainPin.offsetLeft - shift.x), maxMainPinX)}px`;
+
+  };
+
+  let onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+    if (!isActive) {
+      onMainPinClick();
+    }
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
