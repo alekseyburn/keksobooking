@@ -1,26 +1,37 @@
 'use strict'
 
 let similarListElement = document.querySelector(".map__pins");
-let similarTemplateElement = document.getElementById("pin").content.querySelector(".map__pin");
-let adForm = document.querySelector(".ad-form");
+let errorBlock = window.form.errorMessageElement.cloneNode(true);
+let errorBlockButton = errorBlock.querySelector(".error__button");
 
 //создание pinsCount объектов pin, добавление их в разметку
 let createFragment = (pins) => {
   let fragment = document.createDocumentFragment();
   pins.forEach(pin => fragment.appendChild(window.pin.renderPin(pin)));
   similarListElement.appendChild(fragment);
-}
+};
 
 //При нажатии на центральный пин активируем страницу
 let onMainPinClick = () => {
   window.data.map.classList.remove("map--faded");
-  adForm.classList.remove("ad-form--disabled");
+  window.form.adForm.classList.remove("ad-form--disabled");
   window.utils.toggleElement(window.form.fieldsetForm);
   window.utils.toggleElement(window.form.filterForm);
-  createFragment(window.card.createAdvertsList());
 
+  window.load(createFragment, errorHandler);
   window.data.isActive = true;
 }
+
+let errorHandler = (message) => {
+  errorBlock.querySelector(".error__message").textContent = message;
+  errorBlockButton.textContent = "Закрыть";
+  window.form.body.appendChild(errorBlock);
+  errorBlock.classList.remove("hidden");
+  errorBlockButton.addEventListener("click", () => {
+    errorBlock.classList.add("hidden");
+  });
+  console.error(message);
+};
 
 window.map = {
   onMainPinClick: onMainPinClick

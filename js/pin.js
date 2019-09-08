@@ -1,6 +1,7 @@
 "use strict";
 
 (function () {
+  let similarTemplateElement = document.getElementById("pin").content.querySelector(".map__pin");
 
   //копирование разметки из тимплейта, заполнение информации элемента
   let renderPin = (pin) => {
