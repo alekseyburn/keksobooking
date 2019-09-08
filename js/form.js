@@ -62,6 +62,9 @@
     setAddressCoords: setAddressCoords,
     fieldsetForm: fieldsetForm,
     filterForm: filterForm,
-    adForm: adForm
+    adForm: adForm,
+    errorMessageElement: errorMessageElement,
+    errorCloseButton: errorCloseButton,
+    body: body
   };
 })();
