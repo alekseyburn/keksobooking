@@ -7,8 +7,8 @@
     let pins = [];
 
     for (let i = 0; i < window.data.pinsCount; i++) {
-      let pinCoordX = window.utils.getRandomDigit(-window.data.pinWidth / 2, window.data.mapWidth - window.data.pinWidth / 2);
-      let pinCoordY = window.utils.getRandomDigit(window.data.minY, window.data.maxY);
+      // let pinCoordX = window.utils.getRandomDigit(-window.data.pinWidth / 2, window.data.mapWidth - window.data.pinWidth / 2);
+      // let pinCoordY = window.utils.getRandomDigit(window.data.minY, window.data.maxY);
 
       let pin = {
         author: {
