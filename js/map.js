@@ -1,6 +1,6 @@
 'use strict'
 
-let similarListElement = document.querySelector(".map__pins");
+let mapPins = document.querySelector(".map__pins");
 let errorBlock = window.form.errorMessageElement.cloneNode(true);
 let errorBlockButton = errorBlock.querySelector(".error__button");
 
@@ -8,7 +8,7 @@ let errorBlockButton = errorBlock.querySelector(".error__button");
 let createFragment = (pins) => {
   let fragment = document.createDocumentFragment();
   pins.forEach(pin => fragment.appendChild(window.pin.renderPin(pin)));
-  similarListElement.appendChild(fragment);
+  mapPins.appendChild(fragment);
 };
 
 //При нажатии на центральный пин активируем страницу
@@ -34,5 +34,6 @@ let errorHandler = (message) => {
 };
 
 window.map = {
-  onMainPinClick: onMainPinClick
+  onMainPinClick: onMainPinClick,
+  mapPins: mapPins,
 }
