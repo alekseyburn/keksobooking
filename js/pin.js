@@ -13,6 +13,11 @@
     pinElement.style.left = `${pin.location.x - window.data.pinWidth / 2}px`
     pinElement.style.top = `${pin.location.y - window.data.pinHeight}px`;
 
+    pinElement.addEventListener("click", () => {
+      window.card.showCard(pin);
+      pinElement.classList.add("map__pin--active");
+    });
+
     return pinElement;
   };
 
