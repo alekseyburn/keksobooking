@@ -7,40 +7,57 @@
   let maxMainPinX = window.data.mapWidth - window.data.mainPinWidth / 2;
 
   //реализация перетаскивания главного пина
-  window.data.mainPin.addEventListener('mousedown', function (evt) {
+  let onMouseDown = (evt) => {
     evt.preventDefault();
 
     let startCoords = {
       x: evt.clientX,
-      y: evt.clientY
+      y: evt.clientY,
     };
 
     //перемещение пина и запись в координаты адрес
-    let onMouseMove = function (moveEvt) {
+    let onMouseMove = (moveEvt) => {
       moveEvt.preventDefault();
-      window.form.setAddressCoords();
+
+      if (!window.app.isPageActive) {
+        window.app.activatePage();
+        window.load(window.app.onOffersLoad, window.app.onOffersError);
+      }
 
       let shift = {
         x: startCoords.x - moveEvt.clientX,
-        y: startCoords.y - moveEvt.clientY
+        y: startCoords.y - moveEvt.clientY,
       };
 
       startCoords = {
         x: moveEvt.clientX,
-        y: moveEvt.clientY
+        y: moveEvt.clientY,
       };
 
-      //ограничение по краям(верх и низ - высота пина, лево и право - половина ширины пина)
-      window.data.mainPin.style.top = `${Math.min(Math.max(minMainPinY, window.data.mainPin.offsetTop - shift.y), maxMainPinY)}px`;
-      window.data.mainPin.style.left = `${Math.min(Math.max(minMainPinX, window.data.mainPin.offsetLeft - shift.x), maxMainPinX)}px`;
+      let pinX = window.data.mainPin.offsetLeft - shift.x;
+      let pinY = window.data.mainPin.offsetTop - shift.y;
 
+      if (pinX < minMainPinX) {
+        pinX = minMainPinX;
+      }
+      if (pinX > maxMainPinX) {
+        pinX = maxMainPinX;
+      }
+      if (pinY < minMainPinY) {
+        pinY = minMainPinY;
+      }
+      if (pinY > maxMainPinY) {
+        pinY = maxMainPinY;
+      }
+
+      //ограничение по краям(верх и низ - высота пина, лево и право - половина ширины пина)
+      window.data.mainPin.style.top = `${pinY}px`;
+      window.data.mainPin.style.left = `${pinX}px`;
+      window.form.setAddress(window.utils.getCoords(window.data.mainPin));
     };
 
     let onMouseUp = function (upEvt) {
       upEvt.preventDefault();
-      if (!window.data.isActive) {
-        window.map.onMainPinClick();
-      }
 
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
@@ -48,5 +65,9 @@
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-  });
+  };
+
+  window.dragndrop = {
+    onMouseDown: onMouseDown,
+  }
 })();

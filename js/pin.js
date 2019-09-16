@@ -1,27 +1,25 @@
-"use strict";
+'use strict';
 
 (function () {
-  let similarTemplateElement = document.getElementById("pin").content.querySelector(".map__pin");
+  let pinTemplate = document.getElementById('pin').
+    content.
+    querySelector('.map__pin');
 
   //копирование разметки из тимплейта, заполнение информации элемента
-  let renderPin = (pin) => {
-    let pinElement = similarTemplateElement.cloneNode(true);
-    let pinImg = pinElement.querySelector("img");
+  let createPin = (id, pin) => {
+    let pinElement = pinTemplate.cloneNode(true);
+    let pinImg = pinElement.querySelector('img');
 
+    pinElement.dataset.id = id;
     pinImg.src = pin.author.avatar;
     pinImg.alt = pin.offer.type;
-    pinElement.style.left = `${pin.location.x - window.data.pinWidth / 2}px`
+    pinElement.style.left = `${pin.location.x - window.data.pinWidth / 2}px`;
     pinElement.style.top = `${pin.location.y - window.data.pinHeight}px`;
-
-    pinElement.addEventListener("click", () => {
-      window.card.showCard(pin);
-      pinElement.classList.add("map__pin--active");
-    });
 
     return pinElement;
   };
 
   window.pin = {
-    renderPin: renderPin
+    createPin: createPin,
   };
 })();
