@@ -1,8 +1,15 @@
 'use strict';
 
 (function () {
+
+  let KeyCodes = {
+    ESC: 27,
+    ENTER: 13,
+  };
+
   //рандомное число
-  let getRandomDigit = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
+  let getRandomDigit = (min, max) => Math.floor(
+    min + Math.random() * (max - min + 1));
 
   //перемешивание массива
   let shuffleArray = (arr) => {
@@ -16,22 +23,38 @@
   //Выбор значения из массива и возврат массива без этого значения
   let takeFromArr = (arr) => {
     let clone = arr.slice();
-    return clone.splice(clone.indexOf(clone[getRandomDigit(0, clone.length - 1)]), 1);
+    return clone.splice(
+      clone.indexOf(clone[getRandomDigit(0, clone.length - 1)]), 1);
   };
 
   //Получение массива с рандомными элементами из другого массива
-  let getSubArr = (arr) => shuffleArray(arr.slice()).splice(0, getRandomDigit(0, arr.length - 1));
+  let getSubArr = (arr) => shuffleArray(arr.slice()).
+    splice(0, getRandomDigit(0, arr.length - 1));
 
   //получение центральной нижней точки элемента
   let getCoords = (item) => {
     return {
       x: Math.round(item.offsetLeft + item.getBoundingClientRect().width / 2),
-      y: Math.round(item.offsetTop + item.getBoundingClientRect().height)
-    }
+      y: Math.round(item.offsetTop + item.getBoundingClientRect().height),
+    };
   };
 
   //переключение элементов формы в disabled если они доступны и наоборот
-  let toggleElement = (elem) => elem.forEach((item) => item.disabled ? item.disabled = false : item.disabled = true);
+  let toggleElement = (elem) => elem.forEach(
+    (item) => item.disabled ? item.disabled = false : item.disabled = true);
+
+  let onEscPress = (evt, cb) => {
+    if (evt.keyCode === KeyCodes.ESC) {
+      evt.preventDefault();
+      cb();
+    }
+  };
+
+  let onEnterPress = (evt, cb) => {
+    if (evt.keyCode === KeyCodes.ENTER) {
+      cb();
+    }
+  };
 
   window.utils = {
     getRandomDigit: getRandomDigit,
@@ -39,6 +62,8 @@
     takeFromArr: takeFromArr,
     getSubArr: getSubArr,
     getCoords: getCoords,
-    toggleElement: toggleElement
+    toggleElement: toggleElement,
+    onEscPress: onEscPress,
+    onEnterPress: onEnterPress,
   };
 })();

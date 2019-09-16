@@ -1,39 +1,82 @@
-'use strict'
-
-let mapPins = document.querySelector(".map__pins");
-let errorBlock = window.form.errorMessageElement.cloneNode(true);
-let errorBlockButton = errorBlock.querySelector(".error__button");
+'use strict';
+(function () {
+  let map = document.querySelector('.map');
+  let mapPins = document.querySelector('.map__pins');
+  let createdPins = [];
+  let activePin = null;
+  let isCardRendered = false;
 
 //создание pinsCount объектов pin, добавление их в разметку
-let createFragment = (pins) => {
-  let fragment = document.createDocumentFragment();
-  pins.forEach(pin => fragment.appendChild(window.pin.renderPin(pin)));
-  mapPins.appendChild(fragment);
-};
+  let renderPins = (pins) => {
+    let fragment = document.createDocumentFragment();
+    for (let i = 0; i < pins.length; i++) {
+      fragment.appendChild(window.pin.createPin(i, pins[i]));
+    }
+    mapPins.appendChild(fragment);
 
-//При нажатии на центральный пин активируем страницу
-let onMainPinClick = () => {
-  window.data.map.classList.remove("map--faded");
-  window.form.adForm.classList.remove("ad-form--disabled");
-  window.utils.toggleElement(window.form.fieldsetForm);
-  window.utils.toggleElement(window.form.filterForm);
+    createdPins = mapPins.querySelectorAll('.map__pin:not([class$="main"])');
+    createdPins.forEach(pin => pin.addEventListener('click', onPinClick));
+  };
 
-  window.load(createFragment, errorHandler);
-  window.data.isActive = true;
-}
+  let clearPins = () => {
+    createdPins.forEach((item) => item.remove());
+    createdPins = [];
+  };
 
-let errorHandler = (message) => {
-  errorBlock.querySelector(".error__message").textContent = message;
-  errorBlockButton.textContent = "Закрыть";
-  window.form.body.appendChild(errorBlock);
-  errorBlock.classList.remove("hidden");
-  errorBlockButton.addEventListener("click", () => {
-    errorBlock.classList.add("hidden");
-  });
-  console.error(message);
-};
+  let onPinClick = (evt) => {
+    let pin = evt.currentTarget;
 
-window.map = {
-  onMainPinClick: onMainPinClick,
-  mapPins: mapPins,
-}
+    if (activePin === pin) {
+      return;
+    }
+    if (isCardRendered) {
+      clearCard();
+      resetActivePin();
+    }
+    pin.classList.add('map__pin--active');
+    activePin = pin;
+    openCard(+pin.dataset.id);
+  };
+
+  let onCardCloseBtnClick = () => closeCard();
+
+  let onCardEscPress = evt => window.utils.onEscPress(evt, closeCard);
+
+  let resetActivePin = () => {
+    activePin.classList.remove('map__pin--active');
+    activePin = null;
+  };
+
+  let openCard = (pinId) => {
+    let card = window.card.createCard(window.data.filteredOffers[pinId]);
+    map.appendChild(card);
+    isCardRendered = true;
+
+    let cardCloseBtn = card.querySelector('.popup__close');
+
+    cardCloseBtn.addEventListener('click', onCardCloseBtnClick);
+    document.addEventListener('keydown', onCardEscPress);
+  };
+
+  let clearCard = () => {
+    map.querySelector('.map__card').remove();
+    isCardRendered = false;
+
+    document.removeEventListener('keydown', onCardEscPress);
+  };
+
+  let closeCard = () => {
+    if (isCardRendered) {
+      clearCard();
+      activePin.focus();
+      resetActivePin();
+    }
+  };
+
+  window.map = {
+    closeCard: closeCard,
+    renderPins: renderPins,
+    clearPins: clearPins,
+    mapPins: mapPins,
+  };
+})();
