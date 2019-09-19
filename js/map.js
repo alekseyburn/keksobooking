@@ -9,14 +9,14 @@
 //создание pinsCount объектов pin, добавление их в разметку
   let renderPins = (pins) => {
     let fragment = document.createDocumentFragment();
-    for (let i = 0; i < pins.length; i++) {
-      fragment.appendChild(window.pin.createPin(i, pins[i]));
-    }
+    pins.forEach((pin, idx) => {
+      fragment.appendChild(window.pin.createPin(idx, pin));
+    });
     mapPins.appendChild(fragment);
 
     createdPins = mapPins.querySelectorAll('.map__pin:not([class$="main"])');
     createdPins.forEach(pin => pin.addEventListener('click', onPinClick));
-  };
+    };
 
   let clearPins = () => {
     createdPins.forEach((item) => item.remove());
