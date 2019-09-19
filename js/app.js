@@ -16,7 +16,7 @@
 
       if (!isPageActive) {
         window.app.activatePage();
-        window.load(onOffersLoad, onOffersError);
+        window.load(onAdsLoad, onAdsError);
       }
 
       let shift = {
@@ -67,18 +67,34 @@
     resetPage();
   };
 
-  let onOffersLoad = (offers) => {
-    window.data.offers = offers;
-    window.filters.filterOffers();
-    window.map.renderPins(window.data.filteredOffers);
-    window.form.activateFormFields(window.form.filterForm);
+  let onFiltersFormChange = (evt) => {
+    window.filters.updateFilterState(evt.target);
+    updatePins(evt);
   };
 
-  let onOffersError = (errorText) => {
+  let onAdsLoad = (ads) => {
+    window.data.ads = ads;
+    window.filters.initAds();
+    window.map.renderPins(window.data.filteredOffers);
+    window.form.activateFormFields(window.form.filterForm);
+
+    window.form.filterMap.addEventListener("change", onFiltersFormChange);
+  };
+
+  let onAdsError = (errorText) => {
     window.alerts.showError(`Ошибка - ${errorText}`, () => {
-      window.load(onOffersLoad, onOffersError);
+      window.load(onAdsLoad, onAdsError);
     });
   };
+
+  let updatePins = (evt) => {
+    window.map.closeCard();
+    window.map.clearPins();
+    window.filters.filterAds();
+    window.map.renderPins(window.data.filteredOffers);
+    evt.target.focus();
+  };
+
   let activatePage = () => {
     window.data.map.classList.remove('map--faded');
     window.form.activateForm();
@@ -96,6 +112,7 @@
       window.scrollTo(0, 0);
 
       window.form.formReset.removeEventListener('click', onAdFormResetClick);
+      window.form.filterMap.removeEventListener("change", onFiltersFormChange);
     }
 
     window.data.map.classList.add('map--faded');
@@ -121,8 +138,8 @@
   //реализация перетаскивания главного пина
 
   window.app = {
-    onOffersLoad: onOffersLoad,
-    onOffersError: onOffersError,
+    onAdsLoad: onAdsLoad,
+    onAdsError: onAdsError,
     activatePage: activatePage,
     isPageActive: isPageActive
   }

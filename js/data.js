@@ -22,5 +22,7 @@
     mainPin: mainPin,
     offers: [],
     filteredOffers: [],
+    ads: [],
+    filteredAds: [],
   };
 })();
